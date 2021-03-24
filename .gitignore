@@ -1,3 +1,15 @@
+#===========================
+
+# Jupyter notebook
+.ipynb_checkpoints/
+
+# References and data
+refs/
+data/
+stash/
+
+#===========================
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -129,11 +141,3 @@ dmypy.json
 .pyre/
 __pycache__/
 
-#===========================
-
-# Jupyter notebook
-.ipynb_checkpoints/
-
-# References and data
-refs/
-data/

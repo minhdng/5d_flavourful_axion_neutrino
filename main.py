@@ -18,14 +18,19 @@ os.chdir(path)
 
 # ----- Import home-made packages -----
 import yukawa5d
+from constants import const
+
 
 # ----- To reproduce the result -----
 np.random.seed(3)
 
 
 # ----- Workspace -----
-y1 = yukawa5d.randomMatrix(3)
-y2 = yukawa5d.randomMatrix(3)
+y1 = yukawa5d.generateRandomMatrix(3)
+y2 = yukawa5d.generateRandomMatrix(3)
+
+
+
 
 cL = np.array([0.2, 0.3, 0.4])
 cR1_minus = np.array([2.1, 2.2, 3.2])
@@ -43,39 +48,49 @@ ckm_unitary = u1.dot(vh2)
 s12, s13, s23, delta, phi_l, phi_r = yukawa5d.getCKM(ckm_unitary)
 
 c_array = np.array([0.2, 0.3, 0.4, 2.1, 2.2, 3.2, 5.1, 7.2, 10.2])
-data_x = np.array([[y1, y2]])
+param_array = np.concatenate((    
+    yukawa5d.generateRandomParameters(3), 
+    yukawa5d.generateRandomParameters(3)
+    ))
 
-res = yukawa5d.predictCKM(data_x, c_array)
 
 
-data_y = np.array([[yukawa5d.CKM["s12"]["val"], 
-                   yukawa5d.CKM["s13"]["val"],
-                   yukawa5d.CKM["s23"]["val"],
-                   yukawa5d.CKM["delta"]["val"],
-                   yukawa5d.Yukawa["u"]["val"],
-                   yukawa5d.Yukawa["c"]["val"],
-                   yukawa5d.Yukawa["t"]["val"],
-                   yukawa5d.Yukawa["d"]["val"],
-                   yukawa5d.Yukawa["s"]["val"],
-                   yukawa5d.Yukawa["b"]["val"]
+
+
+data_x = np.array([param_array])
+res = yukawa5d.predictCKMfromParams(data_x, c_array)
+
+
+
+data_y = np.array([[const.CKM["s12"]["val"], 
+                   const.CKM["s13"]["val"],
+                   const.CKM["s23"]["val"],
+                   const.CKM["delta"]["val"],
+                   const.Yukawa["u"]["val"],
+                   const.Yukawa["c"]["val"],
+                   const.Yukawa["t"]["val"],
+                   const.Yukawa["d"]["val"],
+                   const.Yukawa["s"]["val"],
+                   const.Yukawa["b"]["val"]
                    ]])
 
-data_yerr = np.array([[yukawa5d.CKM["s12"]["sdev"], 
-                     yukawa5d.CKM["s13"]["sdev"],
-                     yukawa5d.CKM["s23"]["sdev"],
-                     yukawa5d.CKM["delta"]["sdev"],
-                     yukawa5d.Yukawa["u"]["sdev"],
-                     yukawa5d.Yukawa["c"]["sdev"],
-                     yukawa5d.Yukawa["t"]["sdev"],
-                     yukawa5d.Yukawa["d"]["sdev"],
-                     yukawa5d.Yukawa["s"]["sdev"],
-                     yukawa5d.Yukawa["b"]["sdev"]
+data_yerr = np.array([[const.CKM["s12"]["sdev"], 
+                     const.CKM["s13"]["sdev"],
+                     const.CKM["s23"]["sdev"],
+                     const.CKM["delta"]["sdev"],
+                     const.Yukawa["u"]["sdev"],
+                     const.Yukawa["c"]["sdev"],
+                     const.Yukawa["t"]["sdev"],
+                     const.Yukawa["d"]["sdev"],
+                     const.Yukawa["s"]["sdev"],
+                     const.Yukawa["b"]["sdev"]
                      ]])
 
-least_squares = LeastSquares(data_x, data_y, data_yerr, yukawa5d.predictCKM)
+least_squares = LeastSquares(data_x, data_y, data_yerr, 
+                             yukawa5d.predictCKMfromParams)
 
-m = Minuit(least_squares, (1., 2., 20., 3.1, 3.2, 10.3, 4.1, 4.2, 10.3) )
-
+m = Minuit(least_squares, (1., 2., 5., 3.1, 3.2, 6.3, 4.1, 4.2, 6.3) )
+m.limits = (0., 7.)
 m.migrad()  # finds minimum of least_squares function
 m.hesse()   # accurately computes uncertainties
 
