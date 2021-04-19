@@ -45,10 +45,10 @@ class Quarks(
             "pd11", "pd12", "pd13",
             "pd21", "pd22", "pd23",
             "pd31", "pd32", "pd33",
-            # Left and right profile parameters
+            # Left and (minus) right profile parameters
             "cL1", "cL2", "cL3",
-            "cu1", "cu2", "cu3",
-            "cd1", "cd2", "cd3"
+            "cu1_m", "cu2_m", "cu3_m",
+            "cd1_m", "cd2_m", "cd3_m"
             ],
         output_names = [
             # 4D quark (diagonal) couplings at 10^8 - 10^10 GeV
@@ -181,16 +181,14 @@ class Quarks(
         # extract complex Yukawa matrices
         y1 = unflatten_random_matrix(inputs[0:18], is_complex=True)
         y2 = unflatten_random_matrix(inputs[18:36], is_complex=True)
+        print("y1:\n", y1)
         # extract cL and cR
-        cL, cR1_minus, cR2_minus = inputs[18:21], inputs[21:24], inputs[24:27]   
+        cL, cR1_minus, cR2_minus = inputs[36:39], inputs[39:42], inputs[42:45]   
         
         y1_tilde = ytilde(y1, cL, cR1_minus)
         y2_tilde = ytilde(y2, cL, cR2_minus)
+        print("y1_tilde:\n", y1_tilde)
         
-        # # using numpy
-        # u1, s1, _ = svd(y1_tilde,)
-        # _, s2, vh2 = svd(y2_tilde)        
-
         # using scipy        
         u1, s1, _ = svd(y1_tilde, check_finite=True)
         _, s2, vh2 = svd(y2_tilde, check_finite=True)
@@ -202,6 +200,9 @@ class Quarks(
         swap(vh2, 0, 2)
         
         ckm_unitary = u1.dot(vh2)
+        print("u1:\n", u1)
+        print("vh2:\n", vh2)
+        print("ckm_unitary:\n", ckm_unitary)
         s12, s13, s23, delta, phi_l, phi_r = self._calculate_CKM(ckm_unitary)
         
         return np.concatenate((np.log(s1), np.log(s2), 
@@ -212,7 +213,7 @@ class Quarks(
         y1 = unflatten_random_matrix(inputs[0:18], is_complex=True)
         y2 = unflatten_random_matrix(inputs[18:36], is_complex=True)
         # extract cL and cR
-        cL, cR1_minus, cR2_minus = inputs[18:21], inputs[21:24], inputs[24:27]   
+        cL, cR1_minus, cR2_minus = inputs[36:39], inputs[39:42], inputs[42:45]   
         
         y1_tilde = ytilde(y1, cL, cR1_minus)
         y2_tilde = ytilde(y2, cL, cR2_minus)
@@ -234,7 +235,7 @@ class Quarks(
         y1 = unflatten_random_matrix(inputs[0:18], is_complex=True)
         y2 = unflatten_random_matrix(inputs[18:36], is_complex=True)
         # extract cL and cR
-        cL, cR1_minus, cR2_minus = inputs[18:21], inputs[21:24], inputs[24:27]   
+        cL, cR1_minus, cR2_minus = inputs[36:39], inputs[39:42], inputs[42:45]   
         
         y1_tilde = ytilde(y1, cL, cR1_minus)
         y2_tilde = ytilde(y2, cL, cR2_minus)
@@ -254,7 +255,7 @@ class Quarks(
         y1 = unflatten_random_matrix(inputs[0:18], is_complex=True)
         y2 = unflatten_random_matrix(inputs[18:36], is_complex=True)
         # extract cL and cR
-        cL, cR1_minus, cR2_minus = inputs[18:21], inputs[21:24], inputs[24:27]   
+        cL, cR1_minus, cR2_minus = inputs[36:39], inputs[39:42], inputs[42:45]   
         
         y1_tilde = ytilde(y1, cL, cR1_minus)
         y2_tilde = ytilde(y2, cL, cR2_minus)
