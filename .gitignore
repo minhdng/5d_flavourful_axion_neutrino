@@ -141,3 +141,14 @@ dmypy.json
 .pyre/
 __pycache__/
 
+
+# Legacy folder
+/legacy
+
+
+# Reference papers
+/ref
+
+
+# Mac files
+.DS_Store
