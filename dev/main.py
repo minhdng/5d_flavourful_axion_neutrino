@@ -123,6 +123,7 @@ optimizer = Minuit(least_squares, params,
                     name=model.input_names)
 optimizer.limits = model.input_limits
 
+optimizer.fixed[:36] = True
 # fix all the phases
 # optimizer.fixed[9:18] = True
 # optimizer.fixed[27:36] = True
@@ -154,7 +155,7 @@ optimizer_2 = Minuit(least_squares_2, params_2,
 optimizer_2.limits = model.input_limits
 
 # fix all c-values
-# optimizer_2.fixed[36:45] = True
+optimizer_2.fixed[36:45] = True
 
 # fix all the phases
 #optimizer_2.fixed[9:18] = True
@@ -174,66 +175,10 @@ print(model.get_output_full(x, np.array(optimizer_2.values)), "\n")
 
 
 
-
-# %% 2-step, masses then full, looped
-
-chi_squared_threshold = 20.
-N = 5
-
-# initialize output
-res = []
-
-for i in tqdm(range(N)):
-    model = Quarks()
-    x = np.array([None])
-    
-    # Step 1
-    params = model.generate_random_inputs()   
-    least_squares = LeastSquares(x, 
-                                 model.output_values[:, :6], 
-                                 model.output_errors[:, :6], 
-                                 model.get_output_masses)
-    optimizer = Minuit(least_squares, params, name=model.input_names)
-    optimizer.limits = model.input_limits
-    optimizer.migrad()
-    
-    # Step 2
-    params_2 = np.array(optimizer.values) # feed forward
-    least_squares_2 = LeastSquares(x, 
-                                   model.output_values, 
-                                   model.output_errors,
-                                   model.get_output_full)
-    optimizer_2 = Minuit(least_squares_2, params_2, name=model.input_names)
-    optimizer_2.limits = model.input_limits
-    # optimizer_2.fixed[36:45] = True
-    try:
-        optimizer_2.migrad()
-    except ValueError:
-        pass
-    
-    if optimizer_2.fval and optimizer_2.fval < chi_squared_threshold:
-        print("Match found!")
-        res.append([optimizer_2.fval] + list(optimizer_2.values))
-
-# Log the result
-
-# res_pd = pd.read_csv("../data/quark_01.csv")
-
-# res_names = ["chi_squared"] + model.input_names
-# res_pd_temp = pd.DataFrame(res, columns=res_names)
-# #res_pd_temp = pd.concat([res_pd, res_pd_temp], axis=0).reset_index(drop=True)
-# res_pd_temp.to_csv("../data/quark_04.csv", index=False)
-
-# # Fix index
-# res_pd = res_pd.drop("index", axis=1)
-# res_pd.to_csv("../data/quark_01.csv", index=False)
-
-
-
 # %% 2-step, masses then full, looped with cache for learning
 
-chi_squared_threshold = 20.
-N = 5
+chi_squared_threshold = 10.
+N = 100
 
 # initialize output
 res = []
@@ -251,6 +196,7 @@ for i in tqdm(range(N)):
                                  model.get_output_masses)
     optimizer = Minuit(least_squares, params, name=model.input_names)
     optimizer.limits = model.input_limits
+    optimizer.fixed[:36] = True
     optimizer.migrad()
     
     # Step 2
@@ -263,7 +209,7 @@ for i in tqdm(range(N)):
                                    model.get_output_full)
     optimizer_2 = Minuit(least_squares_2, params_2, name=model.input_names)
     optimizer_2.limits = model.input_limits
-    # optimizer_2.fixed[36:45] = True
+    #optimizer_2.fixed[36:45] = True
     
     try:
         optimizer_2.migrad()
@@ -285,9 +231,9 @@ for i in tqdm(range(N)):
 
 
 
-# # Log the result
+# Log the result
 
-# appending = True
+# appending = False
 
 # res_names = ["chi_squared"] + model.input_names
 # res_pd_temp = pd.DataFrame(res, columns=res_names)
@@ -296,7 +242,7 @@ for i in tqdm(range(N)):
 #     res_pd = pd.read_csv("../data/quark_05.csv")
 #     res_pd_temp = pd.concat([res_pd, res_pd_temp], axis=0).reset_index(drop=True)
 
-# res_pd_temp.to_csv("../data/quark_all.csv", index=False)
+# res_pd_temp.to_csv("../data/quark_7.csv", index=False)
 
 # # # Fix index if needed
 # # res_pd = res_pd.drop("index", axis=1)
@@ -310,7 +256,7 @@ for i in tqdm(range(N)):
 #     cache_pd = pd.read_csv("../data/quark_cache_05.csv")    
 #     cache_pd_temp = pd.concat([cache_pd, cache_pd_temp], axis=0).reset_index(drop=True)
 
-# cache_pd_temp.to_csv("../data/quark_cache_all.csv", index=False)
+# cache_pd_temp.to_csv("../data/quark_cache_7.csv", index=False)
 
 
 
