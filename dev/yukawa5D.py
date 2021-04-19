@@ -157,8 +157,8 @@ def fermionProfile(
     """
     return np.piecewise(cL.astype('float'), [cL!=0.5, cL==0.5], [
         lambda cL: np.sqrt( 
-            (0.5 - cL) * z**(2. - cL) / (zir**(1.-2.*cL) - zuv**(1.-2.*cL)) 
-            ),
+            (0.5 - cL) / (zir**(1.-2.*cL) - zuv**(1.-2.*cL)) 
+            ) * z**(2. - cL)  ,
         lambda cL: 1. / np.sqrt(2. * (np.log(zir) - np.log(zuv)))
         ])
 # ------------------------------------------------------------  
