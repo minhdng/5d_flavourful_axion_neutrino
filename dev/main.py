@@ -184,12 +184,13 @@ N = 100
 res = []
 cache = []
 
+model = Quarks()
+x = np.array([None])    
+
 for i in tqdm(range(N)):
-    model = Quarks()
-    x = np.array([None])
     
     # Step 1
-    params = model.generate_random_inputs()   
+    params = model.generate_random_inputs(c_min=1., c_max=5.)   
     least_squares = LeastSquares(x, 
                                  model.output_values[:, :6], 
                                  model.output_errors[:, :6], 
@@ -231,34 +232,35 @@ for i in tqdm(range(N)):
 
 
 
-# Log the result
+# # Log the result
 
-# appending = False
+# appending = True
 
 # res_names = ["chi_squared"] + model.input_names
 # res_pd_temp = pd.DataFrame(res, columns=res_names)
 
 # if appending: 
-#     res_pd = pd.read_csv("../data/quark_05.csv")
+#     res_pd = pd.read_csv("../data/quark_all.csv")
 #     res_pd_temp = pd.concat([res_pd, res_pd_temp], axis=0).reset_index(drop=True)
 
-# res_pd_temp.to_csv("../data/quark_7.csv", index=False)
-
-# # # Fix index if needed
-# # res_pd = res_pd.drop("index", axis=1)
-# # res_pd.to_csv("../data/quark_01.csv", index=False)
+# res_pd_temp.to_csv("../data/quark_all.csv", index=False)
 
 # # Log the cache
 # cache_names = ["outcome", "chi_squared"] + model.input_names
 # cache_pd_temp = pd.DataFrame(cache, columns=cache_names)
 
 # if appending:
-#     cache_pd = pd.read_csv("../data/quark_cache_05.csv")    
+#     cache_pd = pd.read_csv("../data/quark_cache_all.csv")    
 #     cache_pd_temp = pd.concat([cache_pd, cache_pd_temp], axis=0).reset_index(drop=True)
 
-# cache_pd_temp.to_csv("../data/quark_cache_7.csv", index=False)
+# cache_pd_temp.to_csv("../data/quark_cache_all.csv", index=False)
 
 
+
+
+# # Fix index if needed
+# res_pd = res_pd.drop("index", axis=1)
+# res_pd.to_csv("../data/quark_01.csv", index=False)
 
 
 
