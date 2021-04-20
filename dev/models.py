@@ -65,7 +65,7 @@ class Quarks(
             [(-np.pi, np.pi)] * 9 +  
             [(0.01, 4.)] * 9 + 
             [(-np.pi, np.pi)] * 9 + 
-            [(-2., 5.)] * 9
+            [(-5., 500.)] * 9
             )
         self.output_values = np.array([
             [log(Const.Yukawa[y]["val"]) for y in ["u", "c", "t", "d", "s", "b"]] +
@@ -91,7 +91,7 @@ class Quarks(
 
     def generate_random_inputs(
             self, dim:int=3, abs_min:float=0.01, abs_max:float=4., 
-            c_min:float=0.1, c_max:float=1.
+            c_min:float=0.01, c_max:float=10.
             ):
     	return np.concatenate((
     		generate_random_matrix(dim, abs_min, abs_max, output_type="complex", flattened=True), 
@@ -181,28 +181,24 @@ class Quarks(
         # extract complex Yukawa matrices
         y1 = unflatten_random_matrix(inputs[0:18], is_complex=True)
         y2 = unflatten_random_matrix(inputs[18:36], is_complex=True)
-        print("y1:\n", y1)
         # extract cL and cR
         cL, cR1_minus, cR2_minus = inputs[36:39], inputs[39:42], inputs[42:45]   
         
         y1_tilde = ytilde(y1, cL, cR1_minus)
         y2_tilde = ytilde(y2, cL, cR2_minus)
-        print("y1_tilde:\n", y1_tilde)
         
         # using scipy        
-        u1, s1, _ = svd(y1_tilde, check_finite=True)
-        _, s2, vh2 = svd(y2_tilde, check_finite=True)
+        uh1, s1, _ = svd(y1_tilde, check_finite=True)
+        uh2, s2, _ = svd(y2_tilde, check_finite=True)
         
+        # sort from low to high
         s1 = np.sort(s1)
         s2 = np.sort(s2)
             
-        swap(u1, 0, 2, axis=1)
-        swap(vh2, 0, 2)
+        swap(uh1, 0, 2, axis=1)
+        swap(uh2, 0, 2, axis=1)
         
-        ckm_unitary = u1.dot(vh2)
-        print("u1:\n", u1)
-        print("vh2:\n", vh2)
-        print("ckm_unitary:\n", ckm_unitary)
+        ckm_unitary = uh1.T.conj() @ uh2
         s12, s13, s23, delta, phi_l, phi_r = self._calculate_CKM(ckm_unitary)
         
         return np.concatenate((np.log(s1), np.log(s2), 
@@ -226,6 +222,7 @@ class Quarks(
         _, s1, _ = svd(y1_tilde, check_finite=True)
         _, s2, _ = svd(y2_tilde, check_finite=True)
 
+        # sort from low to high
         s1 = np.sort(s1)
         s2 = np.sort(s2)
         
@@ -240,12 +237,20 @@ class Quarks(
         y1_tilde = ytilde(y1, cL, cR1_minus)
         y2_tilde = ytilde(y2, cL, cR2_minus)
         
-        u1, s1, _ = svd(y1_tilde, check_finite=True)
-        _, s2, vh2 = svd(y2_tilde, check_finite=True)
+        # using scipy        
+        uh1, s1, _ = svd(y1_tilde, check_finite=True)
+        uh2, s2, _ = svd(y2_tilde, check_finite=True)
         
-        ckm_unitary = u1.dot(vh2)
+        # sort from low to high
+        s1 = np.sort(s1)
+        s2 = np.sort(s2)
+            
+        swap(uh1, 0, 2, axis=1)
+        swap(uh2, 0, 2, axis=1)
+        
+        ckm_unitary = uh1.T.conj() @ uh2
         s12, s13, s23, delta, phi_l, phi_r = self._calculate_CKM(ckm_unitary)
-        
+            
         return np.array([
             sum(np.log(s1)), sum(np.log(s2)), s12, s13, s23, delta
             ])  
@@ -256,21 +261,25 @@ class Quarks(
         y2 = unflatten_random_matrix(inputs[18:36], is_complex=True)
         # extract cL and cR
         cL, cR1_minus, cR2_minus = inputs[36:39], inputs[39:42], inputs[42:45]   
-        
+
         y1_tilde = ytilde(y1, cL, cR1_minus)
         y2_tilde = ytilde(y2, cL, cR2_minus)
-        
-        u1, s1, _ = svd(y1_tilde, check_finite=True)
-        _, s2, vh2 = svd(y2_tilde, check_finite=True)
-        
-        ckm_unitary = u1.dot(vh2)
+                
+        # using scipy        
+        uh1, s1, _ = svd(y1_tilde, check_finite=True)
+        uh2, s2, _ = svd(y2_tilde, check_finite=True)
+
+        # sort from low to high
+        s1 = np.sort(s1)
+        s2 = np.sort(s2)
+
+        swap(uh1, 0, 2, axis=1)
+        swap(uh2, 0, 2, axis=1)
+
+        ckm_unitary = uh1.T.conj() @ uh2
         s12, s13, s23, delta, phi_l, phi_r = self._calculate_CKM(ckm_unitary)
-        
-        return np.array([s12, s13, s23, delta]) 
 
-    def check_mass_order(self, inputs:np.array):
-        pass
-
+        return np.array([s12, s13, s23, delta])
 
 
 
